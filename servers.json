@@ -1,0 +1,36 @@
+{
+    "na": {
+        "east": [
+            ["https://download.draugeros.org/",
+                ["35.9149", "-81.5398"]]
+        ],
+        "west": [
+            ["http://http://us.mirrors.fossho.st/draugeros/download/",
+                ["34.0522", "-118.2437"]]
+        ]
+    },
+    "sa": {
+        "east": [],
+        "west": []
+    },
+    "af": {
+        "east": [],
+        "west": []
+    },
+    "au": {
+        "east": [],
+        "west": []
+    },
+    "eu": {
+        "west": [
+            ["http://http://uk.mirrors.fossho.st/draugeros/download/",
+                ["51.5085", "-0.1257"]]
+        ],
+        "east": []
+    },
+    "as": {
+        "east": [],
+        "west": []
+    },
+    "other": []
+}
