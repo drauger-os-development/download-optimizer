@@ -22,27 +22,22 @@
 #
 #
 """Redirect to the server closest to you for the fastest downloads!"""
-from sys import version_info
 import json
+import math
 from flask import Flask, request, redirect
 import urllib3
 
-ipinfo = ["https://ipinfo.io/", "/json"]
+IPINFO = ["https://ipinfo.io/", "/json"]
+APP = Flask(__name__)
 
 
-if version_info[0] == 2:
-    __eprint__("Please run with Python 3 as Python 2 is End-of-Life.")
-    exit(2)
-app = Flask(__name__)
-
-
-@app.route("/")
+@APP.route("/")
 def get_url():
     """get IP address of client and return optimal URL for user"""
     # get ip address
     ip_addr = request.remote_addr
     http = urllib3.PoolManager()
-    data = http.request("GET", str(ip_addr).join(ipinfo)).data
+    data = http.request("GET", str(ip_addr).join(IPINFO)).data
     data = json.loads(data)
     # This should only be triggered during local development
     if "bogon" in data:
@@ -59,13 +54,14 @@ def get_url():
 def get_optimal_server(loc):
     """Get optimal server for location"""
     # Get our server list
+    back_up = "https://raw.githubusercontent.com/drauger-os-development/download-optimizer/master/servers.json"
     try:
         with open("servers.json", "r") as file:
             data = json.load(file)
     except (FileNotFoundError, PermissionError):
         http = urllib3.PoolManager()
-        data = http.request("GET", "https://raw.githubusercontent.com/drauger-os-development/download-optimizer/master/servers.json").data
-        data = json.loads.data
+        data = http.request("GET", back_up).data
+        data = json.loads(data)
     servers = {}
     distances = []
     for continents in data:
@@ -81,26 +77,26 @@ def get_optimal_server(loc):
     return servers[distances[0]]
 
 
-def calculate_distance(p1, p2):
+def calculate_distance(point_1, point_2):
     """Calculate distance between 2 points"""
-    if not isinstance(p1, list):
-        raise TypeError("p1 is not of type 'list'")
-    if not isinstance(p2, list):
-        raise TypeError("p2 is not of type 'list'")
-    for each in enumerate(p1):
-        p1[each[0]] = float(p1[each[0]])
-    for each in enumerate(p2):
-        p2[each[0]] = float(p2[each[0]])
-    # If they are on the same X or Y coordinate we can save time by just getting the
-    # difference between the values for the coordinates on the disimilar axis
-    if p1[0] == p2[0]:
-        return p1[1] - p2[1]
-    if p1[1] == p2[1]:
-        return p1[0] - p2[0]
-    # Here, we KNOW they aren't on the same X or Y coordinate. So we can make a
-    # virtual, 3rd point and use the Pythagorean theorum to get the distance
-    return ((p1[0] ** 2) + (p2[1] ** 2)) ** 0.5
+    if not isinstance(point_1, list):
+        raise TypeError("point_1 is not of type 'list'")
+    if not isinstance(point_2, list):
+        raise TypeError("point_2 is not of type 'list'")
+    for each in enumerate(point_1):
+        point_1[each[0]] = float(point_1[each[0]])
+    for each in enumerate(point_2):
+        point_2[each[0]] = float(point_2[each[0]])
+    point_1[0] = math.radians(point_1[0])
+    point_1[1] = math.radians(point_1[1])
+    point_2[1] = math.radians(point_2[1])
+    point_2[0] = math.radians(point_2[0])
+    temp = point_1[0] - point_2[0]
+    left = math.sin(point_1[1]) * math.sin(point_2[1])
+    right = math.cos(point_1[1]) * math.cos(point_2[1])
+    distance = math.acos(left + right * math.cos(temp))
+    return distance
 
 
 if __name__ == "__main__":
-    app.run()
+    APP.run(host="192.168.1.28", debug=False)
