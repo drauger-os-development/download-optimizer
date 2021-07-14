@@ -71,14 +71,11 @@ def get_optimal_server(loc):
     servers = {}
     distances = []
     for continents in data:
-        if data[continents] == "other":
-            continue
-        for side in data[continents]:
-            if len(data[continents][side]) != 0:
-                for server in data[continents][side]:
-                    distance = calculate_distance(loc, server[1])
-                    servers[distance] = server[0]
-                    distances.append(distance)
+        if len(data[continents]) != 0:
+            for server in data[continents]:
+                distance = calculate_distance(loc, server[1])
+                servers[distance] = server[0]
+                distances.append(distance)
     distances.sort()
     return servers[distances[0]]
 
