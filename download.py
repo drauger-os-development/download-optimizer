@@ -31,8 +31,8 @@ IPINFO = ["https://ipinfo.io/", "/json"]
 APP = Flask(__name__)
 
 
-@APP.route("/")
-def get_url():
+@APP.route("/<path:path>")
+def get_url(path):
     """get IP address of client and return optimal URL for user"""
     # get ip address
     ip_addr = request.remote_addr
@@ -48,7 +48,13 @@ def get_url():
     # fewer lines of code, and potentially not missing a branch prediction
     data["loc"] = data["loc"].split(",")
     server = get_optimal_server(data["loc"])
-    return redirect(server)
+    return redirect(server + path)
+
+
+@APP.route("/")
+def get_url_blank():
+    """Handle the root directory of the mirrors"""
+    return get_url("")
 
 
 def get_optimal_server(loc):
@@ -99,4 +105,4 @@ def calculate_distance(point_1, point_2):
 
 
 if __name__ == "__main__":
-    APP.run(host="192.168.1.28", debug=False)
+    APP.run(host="0.0.0.0", debug=False)
