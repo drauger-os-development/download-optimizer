@@ -1,0 +1,11 @@
+# Nginx is set up to run on the standard HTTP port and listen for requests
+server {
+  listen 80;
+
+  # requests that do not fall under /static are passed on to the WSGI
+  # server that was specified above running on port 8000
+  location / {
+    include uwsgi_params;
+    uwsgi_pass unix:<path to>/download.sock;
+  }
+}

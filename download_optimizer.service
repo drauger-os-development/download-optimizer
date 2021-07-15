@@ -3,10 +3,10 @@ Description=uWSGI instance to serve Download Optimizer
 After=network.target
 
 [Service]
-User=
+User=<username>
 Group=www-data
-WorkingDirectory=
-ExecStart=/usr/bin/uwsgi --ini <ini file here>
+WorkingDirectory=<path to>
+ExecStart=/usr/bin/uwsgi --ini <path to>/download.ini
 
 [Install]
 WantedBy=multi-user.target
