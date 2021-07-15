@@ -1,1 +1,4 @@
-Flask>=1.1.1
+python3-flask
+nginx-full
+uwsgi
+uwsgi-plugin-python3
