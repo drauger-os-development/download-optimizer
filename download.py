@@ -35,7 +35,8 @@ APP = Flask(__name__)
 def get_url(path):
     """get IP address of client and return optimal URL for user"""
     # get ip address
-    ip_addr = request.remote_addr
+    # I know this is non-standard but with the reverse proxy we use it works
+    ip_addr = request.host
     http = urllib3.PoolManager()
     data = http.request("GET", str(ip_addr).join(IPINFO)).data
     data = json.loads(data)
