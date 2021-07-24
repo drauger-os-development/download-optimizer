@@ -1,4 +1,1 @@
-python3-flask
-nginx-full
-uwsgi
-uwsgi-plugin-python3
+haversine>=2.3.1
