@@ -91,15 +91,21 @@ def calculate_distance(point_1, point_2):
         point_1[each[0]] = float(point_1[each[0]])
     for each in enumerate(point_2):
         point_2[each[0]] = float(point_2[each[0]])
+
+     # distance between latitudes
+    # and longitudes
+    dLat = (point_2[0] - point_1[0]) * math.pi / 180.0
+    dLon = (point_2[1] - point_1[1]) * math.pi / 180.0
+
+    # convert to radians
     point_1[0] = math.radians(point_1[0])
     point_1[1] = math.radians(point_1[1])
     point_2[1] = math.radians(point_2[1])
     point_2[0] = math.radians(point_2[0])
-    temp = point_1[0] - point_2[0]
-    left = math.sin(point_1[1]) * math.sin(point_2[1])
-    right = math.cos(point_1[1]) * math.cos(point_2[1])
-    distance = math.acos(left + right * math.cos(temp))
-    return distance
+
+    # apply formulae
+    a = (math.sin(dLat / 2) ** 2) + (math.sin(dLon / 2) ** 2) * (math.cos(point_1[0]) * math.cos(point_2[0]));
+    return a
 
 
 if __name__ == "__main__":
