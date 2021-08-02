@@ -27,7 +27,8 @@ if [ "$port" == "" ]; then
 fi
 echo "Installing Dependencies . . ."
 sudo apt install --assume-yes $(<requirements_apt.txt)
-pip3 install -r requirements.txt
+# Install if not yet installed, update otherwise
+pip3 install --upgrade -r requirements.txt
 username=$(whoami)
 echo "Configuring your system . . ."
 sudo cp -v download_optimizer.nginx_conf /etc/nginx/sites-available/download_optimizer.conf
