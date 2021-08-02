@@ -37,10 +37,16 @@ sudo sed -i "s:<path to>:$PWD:g" /etc/nginx/sites-available/download_optimizer.c
 sudo sed -i "s:<port>:$port:g" /etc/nginx/sites-available/download_optimizer.conf
 sudo sed -i "s:<path to>:$PWD:g" /etc/systemd/system/download_optimizer.service
 sudo sed -i "s:<username>:$username:g" /etc/systemd/system/download_optimizer.service
-echo "Disabling default site . . ."
-sudo rm -fv /etc/nginx/sites-enabled/default
+
+# Only bother trying to delete this file if it exists
+if [ -f /etc/nginx/sites-enabled/default ]; then
+	echo "Disabling default site . . ."
+	sudo rm -fv /etc/nginx/sites-enabled/default
+fi
+
 echo "Enabling site and restarting Nginx . . ."
 sudo systemctl enable download_optimizer
 sudo ln -sv /etc/nginx/sites-available/download_optimizer.conf /etc/nginx/sites-enabled/download_optimizer.conf
 sudo systemctl restart nginx
-echo "Please open port 80 so that Download Optimizer may be exposed to the network"
+sudo systemctl start download_optimizer
+echo "Please ensure port $port is open so that Download Optimizer may be exposed to the network"
