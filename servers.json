@@ -1,14 +1,16 @@
 {
     "na": [
-    		["https://download.draugeros.org/", ["35.9149", "-81.5398"]],
-    		["http://us.mirrors.fossho.st/draugeros/download/", ["34.0522", "-118.2437"]],
-            ["https://draugeros-ny1.swivro.net/download.draugeros.org/", ["40.7643479", "-73.9752488"]]
+            ["https://download.draugeros.org/", ["35.9149", "-81.5398"]],
+            ["http://us.mirrors.fossho.st/draugeros/download/", ["34.0522", "-118.2437"]],
+            ["https://draugeros-ny1.swivro.net/download.draugeros.org/", ["40.7643479", "-73.9752488"]],
+            ["https://us-central.download.draugeros.org/", ["29.7633", "-95.3633"]]
     	],
     "sa": [],
     "af": [],
     "au": [],
     "eu": [
-    		["http://uk.mirrors.fossho.st/draugeros/download/", ["51.5085", "-0.1257"]]
+            ["http://uk.mirrors.fossho.st/draugeros/download/", ["51.5085", "-0.1257"]],
+            ["https://draugeros-lux1.swivro.net/download.draugeros.org/", ["49.8153", "6.1296"]]
     	],
     "as": []
 }
