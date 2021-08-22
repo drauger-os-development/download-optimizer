@@ -9,8 +9,7 @@
     "af": [],
     "au": [],
     "eu": [
-            ["http://uk.mirrors.fossho.st/draugeros/download/", ["51.5085", "-0.1257"]],
-            ["https://draugeros-lux1.swivro.net/download.draugeros.org/", ["49.8153", "6.1296"]]
+            ["http://uk.mirrors.fossho.st/draugeros/download/", ["51.5085", "-0.1257"]]
     	],
     "as": []
 }
