@@ -7,7 +7,9 @@
     	],
     "sa": [],
     "af": [],
-    "au": [],
+    "au": [
+            ["https://australia1-drauger.azurewebsites.net/download.draugeros.org/", ["25.2744", "133.7751"]]
+    ],
     "eu": [
             ["http://mirrors.fossho.st/draugeros/download/", ["52.3732", "4.8560"]]
     ],
