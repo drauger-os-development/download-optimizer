@@ -23,6 +23,9 @@
 #
 """Redirect to the server closest to you for the fastest downloads!"""
 import json
+import multiprocessing
+import os
+import time
 import haversine
 from flask import Flask, request, redirect
 import urllib3
@@ -30,15 +33,70 @@ import urllib3
 IPINFO = ["https://ipinfo.io/", "/json"]
 APP = Flask(__name__)
 
+# Set up persistant download counters
+CURRENT_COUNT_FILE = "daily_count.txt"
+LONG_TERM_COUNT_FILE = "download_count_longterm.txt"
+
+# Multithreading stuffs
+LOCK = multiprocessing.Lock()
+COUNTER = multiprocessing.RawValue("i", 0)
+
+if not os.path.exists(CURRENT_COUNT_FILE):
+    with open(CURRENT_COUNT_FILE, "w") as file:
+        file.write("0")
+
+if not os.path.exists(LONG_TERM_COUNT_FILE):
+    with open(LONG_TERM_COUNT_FILE, "w") as file:
+        file.write("")
+
+
+def update_download_count():
+    """periodically update stored download count"""
+    global COUNTER, LOCK
+    while True:
+        # We dont have to be fast about this since this process is quick as it is
+        # time.sleep(3600)
+        time.sleep(3)
+        with LOCK:
+            with open(CURRENT_COUNT_FILE, "r") as file:
+                count = file.read()
+            count = int(count)
+            count = count + COUNTER.value
+            COUNTER.value = 0
+            with open(CURRENT_COUNT_FILE, "w") as file:
+                file.write(str(count))
+        # At this point the multitreading-sensitive stuff is done, so release the lock
+        hour = time.localtime()[3]
+        if hour == 0:
+            # we didn't delete the `count` var. So we can reuse that.
+            # also, log download counts in multiple places in case of data corruption.
+            # we need to backdate the download count by a day since we commit the data to long-term storage
+            # the day after it is collected
+            date = time.time() - 86400
+            date = time.localtime(date)
+            date = time.strftime("%B %d %Y", date)
+            with open(LONG_TERM_COUNT_FILE, "a") as file:
+                file.write(f"{ date } - { count }\n")
+            with open(CURRENT_COUNT_FILE, "w") as file:
+                file.write("0")
+            print(f"Download count for { date }: { count }")
+
 
 @APP.route("/<path:path>")
 def get_url(path):
     """get IP address of client and return optimal URL for user"""
+    # I know this is really bad to do but it works so meh?
+    global COUNTER, LOCK
     # get ip address
     # I know this is non-standard but with the reverse proxy we use it works
     ip_addr = request.host
     http = urllib3.PoolManager()
-    data = http.request("GET", str(ip_addr).join(IPINFO)).data
+    try:
+        data = http.request("GET", str(ip_addr).join(IPINFO)).data
+    except urllib3.exceptions.MaxRetryError:
+        print("No internet access. In testing?")
+        print("Assuming IP is bogon...")
+        data = '{"bogon": true}'
     data = json.loads(data)
     # This should only be triggered during local development
     if "bogon" in data:
@@ -49,6 +107,10 @@ def get_url(path):
     # fewer lines of code, and potentially not missing a branch prediction
     data["loc"] = data["loc"].split(",")
     server = get_optimal_server(data["loc"])
+    # Only count ISO downloads, but not DEV ISOs as those are super informal
+    if ((path[-4:] == ".iso") and ("DEV" not in path)):
+        with LOCK:
+            COUNTER.value += 1
     return redirect(server + path)
 
 
