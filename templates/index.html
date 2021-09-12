@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Download Stats
+</h1>
+</br>
+<div class="box">
+  <h2 class="subtitle">
+    Overall Total: {{ overall_total }}
+  </h2>
+  </br>
+  <h2 class="subtitle">
+    Monthly Totals
+  </h2>
+  {{ monthly_totals }}
+  </br>
+  <h2 class="subtitle">
+    Daily Totals
+  </h2>
+  {{ daily_totals }}
+  </br>
+</div>
+
+{% endblock %}

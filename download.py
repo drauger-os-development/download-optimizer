@@ -27,7 +27,7 @@ import multiprocessing
 import os
 import time
 import haversine
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, render_template
 import urllib3
 
 IPINFO = ["https://ipinfo.io/", "/json"]
@@ -160,6 +160,48 @@ def calculate_distance(point_1, point_2):
     distance = haversine.haversine(point_1, point_2, unit='km')
     return distance
 
+
+@APP.route("/stats")
+def get_stats():
+    """Get download stats"""
+    # Get data
+    with open(LONG_TERM_COUNT_FILE, "r") as file:
+        data = file.read()
+    # parse the data. Keep the unparsed data or display later
+    data_parsed = data.split("\n")
+    for each in range(len(data_parsed) - 1, -1, -1):
+        if data_parsed[each] == "":
+            del data_parsed[each]
+            continue
+        data_parsed[each] = data_parsed[each].split(" - ")
+        data_parsed[each][1] = int(data_parsed[each][1])
+        data_parsed[each][0] = data_parsed[each][0].split(" ")
+    # get monthly totals
+    monthly_totals = {data_parsed[0][0][0]: 0}
+    month_name_ptr = 0
+    for each in enumerate(data_parsed):
+        if data_parsed[month_name_ptr][0][0] != data_parsed[each[0]][0][0]:
+            month_name_ptr = each[0]
+            monthly_totals[data_parsed[month_name_ptr][0][0]] = 0
+        monthly_totals[data_parsed[month_name_ptr][0][0]] = monthly_totals[data_parsed[month_name_ptr][0][0]] + data_parsed[each[0]][1]
+    # get overall total
+    overall_total = 0
+    for each in monthly_totals:
+        overall_total = monthly_totals[each] + overall_total
+    # generate output
+    output = ""
+    for each in monthly_totals:
+        output = output + f"{ each }: { monthly_totals[each] } </br> "
+    data = data.replace("\n", "</br>")
+    output = render_template("index.html", overall_total=overall_total,
+                             monthly_totals=output, daily_totals=data)
+    output = output.replace("&lt;", "<")
+    output = output.replace("&gt;", ">")
+    return output
+
+
+proc = multiprocessing.Process(target=update_download_count)
+proc.start()
 
 if __name__ == "__main__":
     APP.run(host="0.0.0.0", debug=False)
