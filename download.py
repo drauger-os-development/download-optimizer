@@ -55,12 +55,14 @@ def update_download_count():
     global COUNTER, LOCK
     while True:
         # We dont have to be fast about this since this process is quick as it is
-        # time.sleep(3600)
-        time.sleep(3)
+        time.sleep(3600)
         with LOCK:
             with open(CURRENT_COUNT_FILE, "r") as file:
                 count = file.read()
-            count = int(count)
+            try:
+                count = int(count)
+            except ValueError:
+                count = 0
             count = count + COUNTER.value
             COUNTER.value = 0
             with open(CURRENT_COUNT_FILE, "w") as file:
