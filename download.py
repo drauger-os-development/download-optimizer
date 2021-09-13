@@ -168,6 +168,8 @@ def get_stats():
     with open(LONG_TERM_COUNT_FILE, "r") as file:
         data = file.read()
     # parse the data. Keep the unparsed data or display later
+    if data == "":
+        return render_template("index2.html")
     data_parsed = data.split("\n")
     for each in range(len(data_parsed) - 1, -1, -1):
         if data_parsed[each] == "":
