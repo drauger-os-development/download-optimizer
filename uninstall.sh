@@ -22,7 +22,12 @@
 #
 #
 echo "Removing files and disabling. . ."
+# Stop and disable start up service
 sudo systemctl stop download_optimizer
 sudo systemctl disable download_optimizer
+# remove system files
 sudo rm -fv /etc/nginx/sites-available/download_optimizer.conf /etc/nginx/sites-enabled/download_optimizer.conf /etc/systemd/system/download_optimizer.service
+# restart nginx to take the site offline
 sudo systemctl restart nginx
+# remove commit tag
+rm .git_commit_number

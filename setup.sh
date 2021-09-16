@@ -21,6 +21,8 @@
 #  MA 02110-1301, USA.
 #
 #
+set -Ee
+set -o pipefail
 port="$1"
 if [ "$port" == "" ]; then
 	port="80"
@@ -49,4 +51,5 @@ sudo systemctl enable download_optimizer
 sudo ln -sv /etc/nginx/sites-available/download_optimizer.conf /etc/nginx/sites-enabled/download_optimizer.conf
 sudo systemctl restart nginx
 sudo systemctl start download_optimizer
+git log | grep "^commit " | head -n1 | awk '{print $2}' > .git_commit_number
 echo "Please ensure port $port is open so that Download Optimizer may be exposed to the network"

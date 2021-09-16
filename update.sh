@@ -21,8 +21,19 @@
 #  MA 02110-1301, USA.
 #
 #
+set -Ee
+set -o pipefail
 echo "Pulling updates . . ."
 git pull
+# Check to see if there are any updates
+if [ -f .git_commit_number ]; then
+	num_git=$(git log | grep "^commit " | head -n1 | awk '{print $2}')
+	num_file=$(<.git_commit_number)
+	if [ "$num_git" == "$num_file" ]; then
+		# no updates. Exit.
+		exit
+	fi
+fi
 # We need to figure out what port was configured beforehand so that the user's settings are retained
 port=$(grep "listen *.*;" /etc/nginx/sites-available/download_optimizer.conf | awk '{print $2}' | sed 's/;//g')
 
