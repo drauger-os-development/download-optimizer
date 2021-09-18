@@ -30,4 +30,6 @@ sudo rm -fv /etc/nginx/sites-available/download_optimizer.conf /etc/nginx/sites-
 # restart nginx to take the site offline
 sudo systemctl restart nginx
 # remove commit tag
-rm .git_commit_number
+if [ -f .git_commit_number ]; then
+    rm .git_commit_number
+fi
