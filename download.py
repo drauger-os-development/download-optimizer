@@ -202,6 +202,17 @@ def get_stats():
     return output
 
 
+@APP.route("/about")
+def about():
+    """Serve about page"""
+    if os.path.exists("settings.json"):
+        with open("settings.json", "r") as file:
+            link = json.load(file)["stats_link"]
+    else:
+        link = "https://download-optimizer.draugeros.org/stats"
+    return render_template("about.html", stats_link=link)
+
+
 proc = multiprocessing.Process(target=update_download_count)
 proc.start()
 

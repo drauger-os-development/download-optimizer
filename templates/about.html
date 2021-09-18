@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  About
+</h1>
+</br>
+<h2 class="subtitle">
+    Download Optimizer is a transparent, open-source CDN front-end that leverages
+    Python, Flask, and HTTP Request technologies to initiate downloads.
+    </br>
+    </br>
+    When a HTTP GET request is received, Download Optimizer takes the IP address of
+    the client and uses it to obtain a latitude and longitude location for that client.
+    It then uses the Haversine Formula to calculate the distance across the surface
+    of the Earth between the client, and each of the mirrors in the network. Finally,
+    then grabs the mirror closest to the client, and sends a HTTP 302 Redirect response
+    pointing to the mirror deemed to be the closest to the user.
+    </br>
+    </br>
+    IP addresses may be internally logged (per default uWSGI and Nginx settings) by an
+    individual instance of Download Optimizer. A count of the number of downloads is
+    maintained by all Download Optimizer instances.
+</h2>
+</br>
+<h2 class="subtitle">
+    <b>Links</b>
+    </br>
+    <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine Formula</a>
+    </br>
+    <a href="{{ stats_link }}">Stats for this instance</a>
+    </br>
+    <a href="https://github.com/drauger-os-development/download-optimizer">Source Code</a>
+    </br>
+    </br>
+    <b>Technologies Used</b>
+    </br>
+    <a href="https://www.python.org/">Python Programming Language</a>
+    </br>
+    <a href="https://flask.palletsprojects.com/en/2.0.x/">Flask Web Framework</a>
+    </br>
+    <a href="https://www.nginx.com/">Nginx Web Server</a>
+    </br>
+    <a href=https://uwsgi-docs.readthedocs.io/en/latest/>uWSGI</a>
+    </br>
+    <a href="https://www.json.org">JSON</a>
+    </br>
+    <a href="https://www.gnu.org/software/bash/">BASH Scripting Language</a>
+    </br>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview">HTTP Protocol</a>
+    </br>
+</h2>
+
+{% endblock %}
