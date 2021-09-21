@@ -93,6 +93,7 @@ def get_url(path):
     # I know this is non-standard but with the reverse proxy we use it works
     ip_addr = request.host
     http = urllib3.PoolManager()
+    backup = {"country": "US", "loc": "0,0"}
     try:
         data = http.request("GET", str(ip_addr).join(IPINFO)).data
     except urllib3.exceptions.MaxRetryError:
@@ -101,9 +102,13 @@ def get_url(path):
         data = '{"bogon": true}'
     data = json.loads(data)
     # This should only be triggered during local development
-    if "bogon" in data:
-        if data["bogon"] is True:
-            data = {"country": "US", "loc": "0,0"}
+    if (("bogon" in data) or ("error" in data)):
+        try:
+            if data["bogon"] is True:
+                data = backup
+        except KeyError:
+            if data["error"]["title"].lower() == "wrong ip":
+                data = backup
     # parsing loc back appart after setting it is a stupid thing to do, but
     # doing it this way saves us having to do an if statement, and therefore
     # fewer lines of code, and potentially not missing a branch prediction
