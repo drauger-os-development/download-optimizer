@@ -184,24 +184,40 @@ def get_stats():
         data_parsed[each][1] = int(data_parsed[each][1])
         data_parsed[each][0] = data_parsed[each][0].split(" ")
     # get monthly totals
-    monthly_totals = {data_parsed[0][0][0]: 0}
+    monthly_totals = {data_parsed[0][0][0]: {"total": 0, "days": 0}}
     month_name_ptr = 0
     for each in enumerate(data_parsed):
         if data_parsed[month_name_ptr][0][0] != data_parsed[each[0]][0][0]:
             month_name_ptr = each[0]
-            monthly_totals[data_parsed[month_name_ptr][0][0]] = 0
-        monthly_totals[data_parsed[month_name_ptr][0][0]] = monthly_totals[data_parsed[month_name_ptr][0][0]] + data_parsed[each[0]][1]
+            monthly_totals[data_parsed[month_name_ptr][0][0]] = {"total": 0, "days": 0}
+        monthly_totals[data_parsed[month_name_ptr][0][0]]["total"] += data_parsed[each[0]][1]
+        monthly_totals[data_parsed[month_name_ptr][0][0]]["days"] += 1
     # get overall total
     overall_total = 0
     for each in monthly_totals:
-        overall_total = monthly_totals[each] + overall_total
-    # generate output
-    output = ""
+        overall_total = monthly_totals[each]["total"] + overall_total
+    # generate output for monthly_totals
+    mt_output = ""
     for each in monthly_totals:
-        output = output + f"{ each }: { monthly_totals[each] } </br> "
-    data = data.replace("\n", "</br>")
+        mt_output = mt_output + f"{ each }: { monthly_totals[each]['total'] } </br> "
+    # get weekly average
+    week_avrg = 0
+    for each in range(len(data_parsed) - 1, len(data_parsed) - 8, -1):
+        week_avrg = week_avrg + data_parsed[each][1]
+    week_avrg = "%.2f" % (week_avrg / 7)
+    week_avrg = " ".join(data_parsed[-6][0][:-1]) + " thru " + " ".join(data_parsed[-1][0][:-1]) + " - " + week_avrg
+    # generate output for monthly_avgrs
+    ma_output = ""
+    for each in monthly_totals:
+        ma_output = ma_output + "%s: %.2f </br> " % (each, monthly_totals[each]["total"] / monthly_totals[each]["days"])
+    # Generate output for previous 3 days
+    tdt = ""
+    for each in range(3, 0, -1):
+        each = each * -1
+        tdt = tdt + " ".join(data_parsed[each][0]) + f" - { data_parsed[each][1] } </br> "
     output = render_template("index.html", overall_total=overall_total,
-                             monthly_totals=output, daily_totals=data)
+                             monthly_totals=mt_output, monthy_avrgs=ma_output,
+                             week_avrg=week_avrg, three_day_totals=tdt)
     output = output.replace("&lt;", "<")
     output = output.replace("&gt;", ">")
     return output
