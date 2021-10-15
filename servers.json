@@ -2,7 +2,6 @@
     "na": [
             ["https://download.draugeros.org/", ["35.9149", "-81.5398"]],
             ["http://mirrors.fossho.st/draugeros/download/", ["33.7490", "-84.3880"]],
-            ["https://draugeros-ny1.swivro.net/download.draugeros.org/", ["40.7643479", "-73.9752488"]],
             ["https://us-central.download.draugeros.org/", ["29.7633", "-95.3633"]],
             ["https://r.x8.fyi/draugeros/", ["39.0997", "-94.5786"]]
     	],
