@@ -170,11 +170,25 @@ def calculate_distance(point_1, point_2):
 def get_stats():
     """Get download stats"""
     # Get data
-    with open(LONG_TERM_COUNT_FILE, "r") as file:
-        data = file.read()
+    try:
+        with open(LONG_TERM_COUNT_FILE, "r") as file:
+            data = file.read()
+    except (IOError, FileNotFoundError):
+        data = ""
     # parse the data. Keep the unparsed data or display later
+    try:
+        with open(CURRENT_COUNT_FILE, "r") as file:
+            current = file.read()
+    except (IOError, FileNotFoundError):
+        current = 0
+    try:
+        current = int(current) + COUNTER.value
+    except ValueError:
+        current = COUNTER.value
+    if not isinstance(current, int):
+        current = 0
     if data == "":
-        return render_template("index2.html")
+        return render_template("stats-none.html", daily_total=current)
     data_parsed = data.split("\n")
     for each in range(len(data_parsed) - 1, -1, -1):
         if data_parsed[each] == "":
@@ -215,9 +229,10 @@ def get_stats():
     for each in range(3, 0, -1):
         each = each * -1
         tdt = tdt + " ".join(data_parsed[each][0]) + f" - { data_parsed[each][1] } </br> "
-    output = render_template("index.html", overall_total=overall_total,
+    output = render_template("stats.html", overall_total=overall_total,
                              monthly_totals=mt_output, monthy_avrgs=ma_output,
-                             week_avrg=week_avrg, three_day_totals=tdt)
+                             week_avrg=week_avrg, three_day_totals=tdt,
+                             daily_total=current)
     output = output.replace("&lt;", "<")
     output = output.replace("&gt;", ">")
     return output
