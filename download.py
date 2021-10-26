@@ -215,9 +215,13 @@ def get_stats():
     for each in monthly_totals:
         overall_total = monthly_totals[each]["total"] + overall_total
     # generate output for monthly_totals
-    mt_output = ""
+    mt_output = []
     for each in monthly_totals:
-        mt_output = mt_output + f"{ each }: { monthly_totals[each]['total'] } </br> "
+        mt_output.append(f"{ each }: { monthly_totals[each]['total'] } </br> ")
+    month = mt_output[-1].split(": ")
+    new_tot = monthly_totals[month[0]]["total"] + current
+    mt_output[-1] = f"{month[0]}: {new_tot} </br>"
+    mt_output = "\n".join(mt_output)
     # get weekly average
     week_avrg = 0
     for each in range(len(data_parsed) - 1, len(data_parsed) - 8, -1):
@@ -225,15 +229,20 @@ def get_stats():
     week_avrg = "%.2f" % (week_avrg / 7)
     week_avrg = " ".join(data_parsed[-6][0][:-1]) + " thru " + " ".join(data_parsed[-1][0][:-1]) + " - " + week_avrg
     # generate output for monthly_avgrs
-    ma_output = ""
+    ma_output = []
     for each in monthly_totals:
-        ma_output = ma_output + "%s: %.2f </br> " % (each, monthly_totals[each]["total"] / monthly_totals[each]["days"])
+        ma_output.append("%s: %.2f </br> " % (each, monthly_totals[each]["total"] / monthly_totals[each]["days"]))
+    # add today's numbers into the mix
+    month = ma_output[-1].split(": ")
+    new_avg = (monthly_totals[month[0]]["total"] + current) / monthly_totals[month[0]]["days"] + 1
+    ma_output[-1] = f"{month[0]}: %.2f </br>" % (new_avg)
+    ma_output = "\n".join(ma_output)
     # Generate output for previous 3 days
     tdt = ""
     for each in range(3, 0, -1):
         each = each * -1
         tdt = tdt + " ".join(data_parsed[each][0]) + f" - { data_parsed[each][1] } </br> "
-    output = render_template("stats.html", overall_total=overall_total,
+    output = render_template("stats.html", overall_total=overall_total + current,
                              monthly_totals=mt_output, monthy_avrgs=ma_output,
                              week_avrg=week_avrg, three_day_totals=tdt,
                              daily_total=current)
