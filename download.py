@@ -53,6 +53,7 @@ if not os.path.exists(LONG_TERM_COUNT_FILE):
 def update_download_count():
     """periodically update stored download count"""
     global COUNTER, LOCK
+    sentenal = True
     while True:
         # We dont have to be fast about this since this process is quick as it is
         time.sleep(900)
@@ -69,7 +70,7 @@ def update_download_count():
                 file.write(str(count))
         # At this point the multitreading-sensitive stuff is done, so release the lock
         hour = time.localtime()[3]
-        if hour == 0:
+        if ((hour == 0) and (sentenal)):
             # we didn't delete the `count` var. So we can reuse that.
             # also, log download counts in multiple places in case of data corruption.
             # we need to backdate the download count by a day since we commit the data to long-term storage
@@ -82,6 +83,9 @@ def update_download_count():
             with open(CURRENT_COUNT_FILE, "w") as file:
                 file.write("0")
             print(f"Download count for { date }: { count }")
+            sentenal = False
+        elif ((hour != 0) and (not sentenal)):
+            sentenal = True
 
 
 @APP.route("/<path:path>")
