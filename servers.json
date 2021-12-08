@@ -1,8 +1,7 @@
 {
     "na": [
             ["https://download.draugeros.org/", ["35.9149", "-81.5398"]],
-            ["http://mirrors.fossho.st/draugeros/download/", ["33.7490", "-84.3880"]],
-            ["https://r.x8.fyi/draugeros/", ["39.0997", "-94.5786"]]
+            ["http://mirrors.fossho.st/draugeros/download/", ["33.7490", "-84.3880"]]
     	],
     "sa": [],
     "af": [],
