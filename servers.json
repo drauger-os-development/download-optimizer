@@ -1,15 +1,15 @@
 {
     "na": [
             ["https://download.draugeros.org/", ["35.9149", "-81.5398"]],
-            ["http://mirrors.fossho.st/draugeros/download/", ["33.7490", "-84.3880"]]
+            ["https://mirrors.fossho.st/draugeros/download/", ["33.7490", "-84.3880"]]
     	],
     "sa": [],
     "af": [],
     "au": [],
     "eu": [
-            ["http://mirrors.fossho.st/draugeros/download/", ["52.3732", "4.8560"]]
+            ["https://mirrors.fossho.st/draugeros/download/", ["52.3732", "4.8560"]]
     ],
     "as": [
-            ["http://mirrors.fossho.st/draugeros/download/", ["35.6540", "139.7503"]]
+            ["https://mirrors.fossho.st/draugeros/download/", ["35.6540", "139.7503"]]
     ]
 }
