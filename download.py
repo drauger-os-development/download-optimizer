@@ -223,7 +223,7 @@ def get_stats():
     for each in range(len(data_parsed) - 1, len(data_parsed) - 8, -1):
         week_avrg = week_avrg + data_parsed[each][1]
     week_avrg = "%.2f" % (week_avrg / 7)
-    week_avrg = " ".join(data_parsed[-6][0][:-1]) + " thru " + " ".join(data_parsed[-1][0][:-1]) + " - " + week_avrg
+    week_avrg = " ".join(data_parsed[-7][0][:-1]) + " thru " + " ".join(data_parsed[-1][0][:-1]) + " - " + week_avrg
     # generate output for monthly_avgrs
     ma_output = {}
     for each in monthly_totals:
@@ -233,17 +233,19 @@ def get_stats():
     new_avg = (monthly_totals[month]["total"] + current) / monthly_totals[month]["days"] + 1
     ma_output[month] = new_avg
     # Generate output for previous 3 days
-    tdt = ""
-    for each in range(3, 0, -1):
+    tdt = {}
+    for each in range(7, 0, -1):
         each = each * -1
-        tdt = tdt + " ".join(data_parsed[each][0]) + f" - { data_parsed[each][1] } </br> "
-    output = render_template("stats.html", overall_total=overall_total + current,
+        tdt[" ".join(data_parsed[each][0])] = data_parsed[each][1]
+    output = render_template("stats.html",
+                             overall_total=overall_total + current,
                              monthly_totals_labels=list(mt_output.keys()),
                              monthly_totals_values=list(mt_output.values()),
                              monthly_avrgs_labels=list(ma_output.keys()),
                              monthly_avrgs_values=list(ma_output.values()),
-                             week_avrg=week_avrg, three_day_totals=tdt,
-                             daily_total=current)
+                             week_avrg=week_avrg,
+                             week_total_labels=list(tdt.keys()),
+                             week_total_values=list(tdt.values()),
     output = output.replace("&lt;", "<")
     output = output.replace("&gt;", ">")
     output = output.replace("&#34;", '"')
