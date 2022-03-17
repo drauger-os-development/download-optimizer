@@ -173,6 +173,12 @@ def calculate_distance(point_1, point_2):
 @APP.route("/stats")
 def get_stats():
     """Get download stats"""
+    # settings
+    if os.path.exists("settings.json"):
+        with open("settings.json", "r") as file:
+            link = json.load(file)["about_link"]
+    else:
+        link = "https://download-optimizer.draugeros.org/about"
     # Get data
     try:
         with open(LONG_TERM_COUNT_FILE, "r") as file:
@@ -246,6 +252,9 @@ def get_stats():
                              week_avrg=week_avrg,
                              week_total_labels=list(tdt.keys()),
                              week_total_values=list(tdt.values()),
+                             daily_total=current,
+                             about_link=link
+                             )
     output = output.replace("&lt;", "<")
     output = output.replace("&gt;", ">")
     output = output.replace("&#34;", '"')
