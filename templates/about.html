@@ -7,14 +7,14 @@
 </br>
 <h2 class="subtitle">
     Download Optimizer is a transparent, open-source CDN front-end that leverages
-    Python, Flask, and HTTP Request technologies to initiate downloads.
+    <a href="https://www.python.org/">Python</a>, <a href="https://flask.palletsprojects.com/en/2.0.x/">Flask</a>, and HTTP Request technologies to initiate downloads.
     </br>
     </br>
     When a HTTP GET request is received, Download Optimizer takes the IP address of
     the client and uses it to obtain a latitude and longitude location for that client.
-    It then uses the Haversine Formula to calculate the distance across the surface
+    It then uses the <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine Formula</a> to calculate the distance across the surface
     of the Earth between the client, and each of the mirrors in the network. Finally,
-    then grabs the mirror closest to the client, and sends a HTTP 302 Redirect response
+    it then grabs the mirror closest to the client, and sends a HTTP 302 Redirect response
     pointing to the mirror deemed to be the closest to the user.
     </br>
     </br>
