@@ -2,19 +2,19 @@
 
 {% block content %}
 <h1 class="title">
-  About
+  About Download Optimizer
 </h1>
 </br>
 <h2 class="subtitle">
-    Download Optimizer is a transparent, open-source CDN front-end that leverages
-    <a href="https://www.python.org/">Python</a>, <a href="https://flask.palletsprojects.com/en/2.0.x/">Flask</a>, and HTTP Request technologies to initiate downloads.
+    Download Optimizer is a transparent, open-source <a href="https://en.wikipedia.org/wiki/Content_delivery_network">CDN</a> front-end that leverages
+    <a href="https://www.python.org/">Python</a>, <a href="https://flask.palletsprojects.com/en/2.0.x/">Flask</a>, and <a href="https://www.w3schools.com/whatis/whatis_http.asp">HTTP</a> Request technologies to initiate downloads.
     </br>
     </br>
-    When a HTTP GET request is received, Download Optimizer takes the IP address of
+    When a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET">HTTP GET request</a> is received, Download Optimizer takes the IP address of
     the client and uses it to obtain a latitude and longitude location for that client.
     It then uses the <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine Formula</a> to calculate the distance across the surface
     of the Earth between the client, and each of the mirrors in the network. Finally,
-    it then grabs the mirror closest to the client, and sends a HTTP 302 Redirect response
+    it then grabs the mirror closest to the client, and sends a <a href="https://en.wikipedia.org/wiki/HTTP_302">HTTP 302 Redirect</a> response
     pointing to the mirror deemed to be the closest to the user.
     </br>
     </br>
