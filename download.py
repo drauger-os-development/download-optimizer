@@ -238,11 +238,16 @@ def get_stats():
     month = list(ma_output.keys())[-1]
     new_avg = (monthly_totals[month]["total"] + current) / monthly_totals[month]["days"] + 1
     ma_output[month] = new_avg
-    tdt = {}
     # Generate output for previous 7 days
+    sdt = {}
     for each in range(7, 0, -1):
         each = each * -1
-        tdt[" ".join(data_parsed[each][0])] = data_parsed[each][1]
+        sdt[" ".join(data_parsed[each][0])] = data_parsed[each][1]
+    # Generate output for previous ALL days
+    att = {}
+    for each in range(len(data_parsed) - 1, 0, -1):
+        each = each * -1
+        att[" ".join(data_parsed[each][0])] = data_parsed[each][1]
     output = render_template("stats.html",
                              overall_total=overall_total + current,
                              monthly_totals_labels=list(mt_output.keys()),
@@ -250,8 +255,10 @@ def get_stats():
                              monthly_avrgs_labels=list(ma_output.keys()),
                              monthly_avrgs_values=list(ma_output.values()),
                              week_avrg=week_avrg,
-                             week_total_labels=list(tdt.keys()),
-                             week_total_values=list(tdt.values()),
+                             week_total_labels=list(sdt.keys()),
+                             week_total_values=list(sdt.values()),
+                             daily_total_labels=list(att.keys()),
+                             daily_total_values=list(att.values()),
                              daily_total=current,
                              about_link=link
                              )
