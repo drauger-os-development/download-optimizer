@@ -238,8 +238,8 @@ def get_stats():
     month = list(ma_output.keys())[-1]
     new_avg = (monthly_totals[month]["total"] + current) / monthly_totals[month]["days"] + 1
     ma_output[month] = new_avg
-    # Generate output for previous 3 days
     tdt = {}
+    # Generate output for previous 7 days
     for each in range(7, 0, -1):
         each = each * -1
         tdt[" ".join(data_parsed[each][0])] = data_parsed[each][1]
