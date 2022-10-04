@@ -27,6 +27,7 @@ import multiprocessing
 import os
 import time
 import haversine
+import tarfile as tar
 from flask import Flask, request, redirect, render_template
 import urllib3
 
@@ -84,6 +85,28 @@ def update_download_count():
                 file.write("0")
             print(f"Download count for { date }: { count }")
             sentenal = False
+            with open(LONG_TERM_COUNT_FILE, "r") as file:
+                data = file.read().split("\n")
+            # this block should only run yearly
+            if len(data) >= 365:
+                back_up = data[:366]
+                keep = data[366:]
+                del data
+                keep = "\n".join(keep)
+                with open(LONG_TERM_COUNT_FILE, "w") as file:
+                    file.write(keep)
+                del keep
+                if not os.path.exists("archives"):
+                    os.mkdir("archives")
+                y_1 = back_up[0].split(" ")[2]
+                y_2 = back_up[-1].split(" ")[2]
+                years = f"{ y_1 }-{ y_2 }"
+                del y_1,y_2
+                with open(f"archives/{years}.txt", "w+") as file:
+                    file.write("\n".join(back_up))
+                with tar.open(f"archives/{ years }.tar.xz", "w:xz") as tarfile:
+                    tarfile.add(f"archives/{years}.txt")
+                os.remove(f"archives/{years}.txt")
         elif ((hour != 0) and (not sentenal)):
             sentenal = True
 
