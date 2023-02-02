@@ -303,6 +303,12 @@ def about():
     return render_template("about.html", stats_link=link)
 
 
+@APP.route("/stats/archive/<date:date>")
+def get_historical_stats(date):
+    """Get historical statistics data"""
+    pass
+
+
 proc = multiprocessing.Process(target=update_download_count)
 proc.start()
 
