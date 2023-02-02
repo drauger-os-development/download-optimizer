@@ -306,6 +306,37 @@ def about():
 @APP.route("/stats/archive/<date:date>")
 def get_historical_stats(date):
     """Get historical statistics data"""
+    if "-" in date:
+        date = date.split("-")
+        for each in enumerate(date):
+            date[each[0]] = int(each[1])
+    elif date.isnumeric():
+        date = int(date)
+    else:
+        # not a valid entry. Return error page
+        return ""
+    try:
+        archives = os.listdir("archives")
+    except FileNotFoundError:
+        # return no data available error
+        return ""
+    use = []
+    if isinstance(date, int):
+        for each in archives:
+            if date in each:
+                use.append(each)
+   else:
+        for each in date:
+            for each1 in archives:
+                if each in each1:
+                    use.append(each1)
+   # we now have our archive list in `use`
+   return ""
+
+
+@APP.route("/stats/archive")
+def get_valid_date_ranges():
+    """Help user define valid date ranges for historical archives"""
     pass
 
 
