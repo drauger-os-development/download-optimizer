@@ -334,6 +334,20 @@ def get_historical_stats(date):
    return ""
 
 
+@APP.route("/do-assets/<path:path>")
+def static_dir(path):
+    """Handle asset requests"""
+    if ".." in path:
+        return flask.redirect(flask.url_for("forbidden"))
+    return flask.send_from_directory("assets", path)
+
+
+@APP.route("/robots.txt")
+def robot_txt():
+    """Provide robots.txt"""
+    return static_dir("etc/robots.txt")
+
+
 @APP.route("/stats/archive")
 def get_valid_date_ranges():
     """Help user define valid date ranges for historical archives"""
