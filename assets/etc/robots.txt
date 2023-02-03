@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /thank_you
+Disallow: /thank_you_old
