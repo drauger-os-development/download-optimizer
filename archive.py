@@ -62,7 +62,7 @@ def fetch_data(beginning, end):
     for each in need:
         data = common.parse_data(read_archive(each))
         output.append(data)
-    pass
+    return output
 
 
 def get_valid_year_range():
