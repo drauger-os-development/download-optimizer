@@ -58,11 +58,10 @@ def fetch_data(beginning, end):
             need.append(each)
     # read each archive in, parse it, and meld everything together IN ORDER
     need.sort()
+    output = []
     for each in need:
-        # read archive
-        # parse
-        # append
-        pass
+        data = common.parse_data(read_archive(each))
+        output.append(data)
     pass
 
 
@@ -83,3 +82,9 @@ def get_valid_year_range():
 def __name_to_date_range__(name):
     """Convert an archive name to a date range"""
     return [int(x) for x in name[:-7].split("-")]
+
+
+def read_archive(name):
+    """Read an archive, return data"""
+    with tar.open(f"archives/{name}", "r") as file:
+        return file.extractfile(file.getnames()[0]).read().decode()
