@@ -22,7 +22,6 @@
 #
 #
 """Common functions"""
-import json
 import os
 
 CURRENT_COUNT_FILE = "daily_count.txt"
@@ -38,18 +37,19 @@ def parse_data(data):
         data_parsed[each] = data_parsed[each].split(" - ")
         data_parsed[each][1] = int(data_parsed[each][1])
         data_parsed[each][0] = data_parsed[each][0].split(" ")
-        
+    return data_parsed
+
 
 def parse_data_file(file):
     """Parse data file"""
     try:
         with open(file, "r") as contents:
             return parse_data(contents.read())
-    except FileNotFoundError:
+    except (FileNotFoundError, IOError):
         write_data_file(file)
         return []
-        
-        
+
+
 def write_data_file(file, write=""):
     """Append data to data file"""
     if not os.path.exists(file):

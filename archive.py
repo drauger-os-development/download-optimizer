@@ -23,10 +23,11 @@
 #
 import tarfile as tar
 import os
+import common
 
 def create_archive():
     """Create an archive of statistical data"""
-    with open(LONG_TERM_COUNT_FILE, "r") as file:
+    with open(common.LONG_TERM_COUNT_FILE, "r") as file:
         data = file.read().split("\n")
     if len(data) >= 365:
         # no need to make archive
@@ -34,7 +35,7 @@ def create_archive():
     back_up = data[:366]
     keep = data[366:]
     keep = "\n".join(keep)
-    with open(LONG_TERM_COUNT_FILE, "w") as file:
+    with open(common.LONG_TERM_COUNT_FILE, "w") as file:
         file.write(keep)
     if not os.path.exists("archives"):
         os.mkdir("archives")

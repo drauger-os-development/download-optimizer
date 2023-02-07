@@ -27,27 +27,24 @@ import multiprocessing
 import os
 import time
 import haversine
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, send_from_directory, url_for
 import urllib3
 import archive
+import common
 
 IPINFO = ["https://ipinfo.io/", "/json"]
 APP = Flask(__name__)
-
-# Set up persistant download counters
-CURRENT_COUNT_FILE = "daily_count.txt"
-LONG_TERM_COUNT_FILE = "download_count_longterm.txt"
 
 # Multithreading stuffs
 LOCK = multiprocessing.Lock()
 COUNTER = multiprocessing.RawValue("i", 0)
 
-if not os.path.exists(CURRENT_COUNT_FILE):
-    with open(CURRENT_COUNT_FILE, "w") as file:
+if not os.path.exists(common.CURRENT_COUNT_FILE):
+    with open(common.CURRENT_COUNT_FILE, "w") as file:
         file.write("0")
 
-if not os.path.exists(LONG_TERM_COUNT_FILE):
-    with open(LONG_TERM_COUNT_FILE, "w") as file:
+if not os.path.exists(common.LONG_TERM_COUNT_FILE):
+    with open(common.LONG_TERM_COUNT_FILE, "w") as file:
         file.write("")
 
 
@@ -58,7 +55,7 @@ def update_download_count():
         # We dont have to be fast about this since this process is quick as it is
         time.sleep(900)
         with LOCK:
-            with open(CURRENT_COUNT_FILE, "r") as file:
+            with open(common.CURRENT_COUNT_FILE, "r") as file:
                 count = file.read()
             try:
                 count = int(count)
@@ -66,11 +63,11 @@ def update_download_count():
                 count = 0
             count = count + COUNTER.value
             COUNTER.value = 0
-            with open(CURRENT_COUNT_FILE, "w") as file:
+            with open(common.CURRENT_COUNT_FILE, "w") as file:
                 file.write(str(count))
         # At this point the multitreading-sensitive stuff is done, so release the lock
         hour = time.localtime()[3]
-        if ((hour == 0) and (sentenal)):
+        if hour == 0:
             # we didn't delete the `count` var. So we can reuse that.
             # also, log download counts in multiple places in case of data corruption.
             # we need to backdate the download count by a day since we commit the data to long-term storage
@@ -78,9 +75,9 @@ def update_download_count():
             date = time.time() - 86400
             date = time.localtime(date)
             date = time.strftime("%B %d %Y", date)
-            with open(LONG_TERM_COUNT_FILE, "a") as file:
+            with open(common.LONG_TERM_COUNT_FILE, "a") as file:
                 file.write(f"{ date } - { count }\n")
-            with open(CURRENT_COUNT_FILE, "w") as file:
+            with open(common.CURRENT_COUNT_FILE, "w") as file:
                 file.write("0")
             print(f"Download count for { date }: { count }")
             archive.create_archive()
@@ -178,14 +175,10 @@ def get_stats():
     else:
         link = "https://download-optimizer.draugeros.org/about"
     # Get data
-    try:
-        with open(LONG_TERM_COUNT_FILE, "r") as file:
-            data = file.read()
-    except (IOError, FileNotFoundError):
-        data = ""
+    data = common.parse_data_file(common.LONG_TERM_COUNT_FILE)
     # parse the data. Keep the unparsed data or display later
     try:
-        with open(CURRENT_COUNT_FILE, "r") as file:
+        with open(common.CURRENT_COUNT_FILE, "r") as file:
             current = file.read()
     except (IOError, FileNotFoundError):
         current = 0
@@ -195,25 +188,17 @@ def get_stats():
         current = COUNTER.value
     if not isinstance(current, int):
         current = 0
-    if data == "":
+    if data in ([], ""):
         return render_template("stats-none.html", daily_total=current)
-    data_parsed = data.split("\n")
-    for each in range(len(data_parsed) - 1, -1, -1):
-        if data_parsed[each] == "":
-            del data_parsed[each]
-            continue
-        data_parsed[each] = data_parsed[each].split(" - ")
-        data_parsed[each][1] = int(data_parsed[each][1])
-        data_parsed[each][0] = data_parsed[each][0].split(" ")
     # get monthly totals
-    monthly_totals = {data_parsed[0][0][0]: {"total": 0, "days": 0}}
+    monthly_totals = {data[0][0][0]: {"total": 0, "days": 0}}
     month_name_ptr = 0
-    for each in enumerate(data_parsed):
-        if data_parsed[month_name_ptr][0][0] != data_parsed[each[0]][0][0]:
+    for each in enumerate(data):
+        if data[month_name_ptr][0][0] != data[each[0]][0][0]:
             month_name_ptr = each[0]
-            monthly_totals[data_parsed[month_name_ptr][0][0]] = {"total": 0, "days": 0}
-        monthly_totals[data_parsed[month_name_ptr][0][0]]["total"] += data_parsed[each[0]][1]
-        monthly_totals[data_parsed[month_name_ptr][0][0]]["days"] += 1
+            monthly_totals[data[month_name_ptr][0][0]] = {"total": 0, "days": 0}
+        monthly_totals[data[month_name_ptr][0][0]]["total"] += data[each[0]][1]
+        monthly_totals[data[month_name_ptr][0][0]]["days"] += 1
     # get overall total
     overall_total = 0
     for each in monthly_totals:
@@ -224,10 +209,10 @@ def get_stats():
         mt_output[each] = monthly_totals[each]['total']
     # get weekly average
     week_avrg = 0
-    for each in range(len(data_parsed) - 1, len(data_parsed) - 8, -1):
-        week_avrg = week_avrg + data_parsed[each][1]
+    for each in range(len(data) - 1, len(data) - 8, -1):
+        week_avrg = week_avrg + data[each][1]
     week_avrg = "%.2f" % (week_avrg / 7)
-    week_avrg = " ".join(data_parsed[-7][0][:-1]) + " thru " + " ".join(data_parsed[-1][0][:-1]) + " - " + week_avrg
+    week_avrg = " ".join(data[-7][0][:-1]) + " thru " + " ".join(data[-1][0][:-1]) + " - " + week_avrg
     # generate output for monthly_avgrs
     ma_output = {}
     for each in monthly_totals:
@@ -240,12 +225,12 @@ def get_stats():
     sdt = {}
     for each in range(7, 0, -1):
         each = each * -1
-        sdt[" ".join(data_parsed[each][0])] = data_parsed[each][1]
+        sdt[" ".join(data[each][0])] = data[each][1]
     # Generate output for previous ALL days
     att = {}
-    for each in range(len(data_parsed) - 1, 0, -1):
+    for each in range(len(data) - 1, 0, -1):
         each = each * -1
-        att[" ".join(data_parsed[each][0])] = data_parsed[each][1]
+        att[" ".join(data[each][0])] = data[each][1]
     output = render_template("stats.html",
                              overall_total=overall_total + current,
                              monthly_totals_labels=list(mt_output.keys()),
@@ -278,7 +263,7 @@ def about():
     return render_template("about.html", stats_link=link)
 
 
-@APP.route("/stats/archive/<date:date>")
+@APP.route("/stats/archive/<date>")
 def get_historical_stats(date):
     """Get historical statistics data"""
     if "-" in date:
@@ -300,21 +285,21 @@ def get_historical_stats(date):
         for each in archives:
             if date in each:
                 use.append(each)
-   else:
+    else:
         for each in date:
             for each1 in archives:
                 if each in each1:
                     use.append(each1)
-   # we now have our archive list in `use`
-   return ""
+    # we now have our archive list in `use`
+    return ""
 
 
 @APP.route("/do-assets/<path:path>")
 def static_dir(path):
     """Handle asset requests"""
     if ".." in path:
-        return flask.redirect(flask.url_for("forbidden"))
-    return flask.send_from_directory("assets", path)
+        return redirect(url_for("forbidden"))
+    return send_from_directory("assets", path)
 
 
 @APP.route("/robots.txt")
@@ -326,7 +311,8 @@ def robot_txt():
 @APP.route("/stats/archive")
 def get_valid_date_ranges():
     """Help user define valid date ranges for historical archives"""
-    pass
+    dates = archive.get_valid_year_range()
+    return dates
 
 
 proc = multiprocessing.Process(target=update_download_count)
