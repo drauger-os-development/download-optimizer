@@ -31,22 +31,28 @@ def create_archive():
         data = file.read().split("\n")
     if len(data) >= 365:
         # no need to make archive
-        return None
+        return
     back_up = data[:366]
     keep = data[366:]
     keep = "\n".join(keep)
-    with open(common.LONG_TERM_COUNT_FILE, "w") as file:
-        file.write(keep)
+    # with open(common.LONG_TERM_COUNT_FILE, "w") as file:
+    #    file.write(keep)
     if not os.path.exists("archives"):
         os.mkdir("archives")
-    y_1 = back_up[0].split(" ")[2]
-    y_2 = back_up[-1].split(" ")[2]
+    try:
+        y_1 = back_up[0].split(" ")[2]
+        y_2 = back_up[-1].split(" ")[2]
+    except IndexError:
+        print("Incorrect Formatting for Archive. Trying again later...")
+        return
     years = f"{ y_1 }-{ y_2 }"
-    with open(f"archives/{years}.txt", "w+") as file:
+    with open(f"archives/{ years }.txt", "w+") as file:
         file.write("\n".join(back_up))
     with tar.open(f"archives/{ years }.tar.xz", "w:xz") as tarfile:
-        tarfile.add(f"archives/{years}.txt")
-    os.remove(f"archives/{years}.txt")
+        tarfile.add(f"archives/{ years }.txt")
+    os.remove(f"archives/{ years }.txt")
+    with open(common.LONG_TERM_COUNT_FILE, "w") as file:
+        file.write(keep)
 
 
 def fetch_data(beginning, end):
