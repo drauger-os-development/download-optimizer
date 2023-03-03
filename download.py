@@ -80,7 +80,48 @@ def update_download_count():
             with open(common.CURRENT_COUNT_FILE, "w") as file:
                 file.write("0")
             print(f"Download count for { date }: { count }")
+            dedup_entries()
             archive.create_archive()
+
+
+def dedup_entries():
+    """Deduplicate download count entries"""
+    data = common.parse_data_file(common.LONG_TERM_COUNT_FILE)
+    result = []
+    for each in enumerate(data):
+        add = []
+        for each1 in enumerate(data):
+            if each[1][0] == each1[1][0]:
+                if add == []:
+                    sentenal = False
+                    for each2 in result:
+                        if each[1][0] == each2[0]:
+                            sentenal = True
+                            break
+                    if sentenal:
+                        continue
+                    if each[0] == each1[0]:
+                        add = [each[1][0], each[1][1]]
+                    else:
+                        add = [each[1][0], (each[1][1] + each1[1][1])]
+                elif add[0] == each[1][0]:
+                    add[1] = add[1] + each1[1][1]
+                else:
+                    sentenal = False
+                    for each2 in result:
+                        if each[1][0] == each2[0]:
+                            sentenal = True
+                            break
+                    if sentenal:
+                        continue
+                    if each[0] == each1[0]:
+                        add = [each[1][0], each[1][1]]
+                    else:
+                        add = [each[1][0], (each[1][1] + each1[1][1])]
+        if add != []:
+            result.append(add)
+    os.remove(common.LONG_TERM_COUNT_FILE)
+    common.write_data_file(common.LONG_TERM_COUNT_FILE, write=result)
 
 
 @APP.route("/<path:path>")
@@ -209,10 +250,13 @@ def get_stats():
         mt_output[each] = monthly_totals[each]['total']
     # get weekly average
     week_avrg = 0
-    for each in range(len(data) - 1, len(data) - 8, -1):
-        week_avrg = week_avrg + data[each][1]
-    week_avrg = "%.2f" % (week_avrg / 7)
-    week_avrg = " ".join(data[-7][0][:-1]) + " thru " + " ".join(data[-1][0][:-1]) + " - " + week_avrg
+    if len(data) >= 7:
+        for each in range(len(data) - 1, len(data) - 8, -1):
+            week_avrg = week_avrg + data[each][1]
+        week_avrg = "%.2f" % (week_avrg / 7)
+        week_avrg = " ".join(data[-7][0][:-1]) + " thru " + " ".join(data[-1][0][:-1]) + " - " + week_avrg
+    else:
+        week_avrg = "0"
     # generate output for monthly_avgrs
     ma_output = {}
     for each in monthly_totals:
@@ -223,7 +267,10 @@ def get_stats():
     ma_output[month] = new_avg
     # Generate output for previous 7 days
     sdt = {}
-    for each in range(7, 0, -1):
+    max = 7
+    if len(data) < 7:
+        max = len(data)
+    for each in range(max, 0, -1):
         each = each * -1
         sdt[" ".join(data[each][0])] = data[each][1]
     # Generate output for previous ALL days
