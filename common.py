@@ -62,4 +62,4 @@ def write_data_file(file, write=""):
     else:
         with open(file, "a") as file:
             for each in write:
-                file.write(f"{ ' '.join(each[0]) } - { each[1] }")
+                file.write(f"\n{ ' '.join(each[0]) } - { each[1] }")
