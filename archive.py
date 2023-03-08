@@ -29,7 +29,7 @@ def create_archive():
     """Create an archive of statistical data"""
     with open(common.LONG_TERM_COUNT_FILE, "r") as file:
         data = file.read().split("\n")
-    if len(data) >= 365:
+    if len(data) < 365:
         # no need to make archive
         return
     back_up = data[:366]
