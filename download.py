@@ -44,8 +44,7 @@ if not os.path.exists(common.CURRENT_COUNT_FILE):
         file.write("0")
 
 if not os.path.exists(common.LONG_TERM_COUNT_FILE):
-    with open(common.LONG_TERM_COUNT_FILE, "w") as file:
-        file.write("")
+    common.write_data_file(common.LONG_TERM_COUNT_FILE)
 
 
 def update_download_count():
@@ -74,9 +73,8 @@ def update_download_count():
             # the day after it is collected
             date = time.time() - 86400
             date = time.localtime(date)
-            date = time.strftime("%B %d %Y", date)
-            with open(common.LONG_TERM_COUNT_FILE, "a") as file:
-                file.write(f"{ date } - { count }\n")
+            date = time.strftime("%B %d %Y", date).split(" ")
+            common.write_data_file(common.LONG_TERM_COUNT_FILE, write=[date, count])
             with open(common.CURRENT_COUNT_FILE, "w") as file:
                 file.write("0")
             print(f"Download count for { date }: { count }")
