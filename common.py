@@ -57,9 +57,7 @@ def write_data_file(file, write=""):
             if write == "":
                 file.write("")
             else:
-                for each in write:
-                    file.write(f"{ ' '.join(each[0]) } - { each[1] }")
+                file.write(f"{ ' '.join(write[0]) } - { write[1] }")
     else:
         with open(file, "a") as file:
-            for each in write:
-                file.write(f"\n{ ' '.join(each[0]) } - { each[1] }")
+            file.write(f"\n{ ' '.join(write[0]) } - { write[1] }")
