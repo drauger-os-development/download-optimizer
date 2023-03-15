@@ -119,7 +119,8 @@ def dedup_entries():
         if add != []:
             result.append(add)
     os.remove(common.LONG_TERM_COUNT_FILE)
-    common.write_data_file(common.LONG_TERM_COUNT_FILE, write=result)
+    for each in result:
+        common.write_data_file(common.LONG_TERM_COUNT_FILE, write=each)
 
 
 @APP.route("/<path:path>")
