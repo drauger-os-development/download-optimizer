@@ -358,7 +358,11 @@ def robot_txt():
 def get_valid_date_ranges():
     """Help user define valid date ranges for historical archives"""
     dates = archive.get_valid_year_range()
-    return dates
+    valid = []
+    for each in range(int(dates[0]), int(dates[1]) + 1):
+        valid.append(each)
+    print(valid)
+    return ""
 
 
 proc = multiprocessing.Process(target=update_download_count)
