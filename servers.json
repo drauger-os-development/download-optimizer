@@ -5,10 +5,10 @@
     "sa": [],
     "af": [],
     "au": [
- ["https://au.download.draugeros.org/", ["-33.8707", "151.2068"]]
-],
+            ["https://au.download.draugeros.org/", ["-33.8707", "151.2068"]]
+        ],
     "eu": [
             ["https://de.download.draugeros.org/", ["50.1155", "8.6842"]]
-    ],
+        ],
     "as": []
 }
