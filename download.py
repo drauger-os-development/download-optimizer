@@ -186,7 +186,28 @@ def get_optimal_server(loc):
                 servers[distance] = server[0]
                 distances.append(distance)
     distances.sort()
-    return servers[distances[0]]
+    return check_online(servers, distances)
+
+
+def check_online(servers: dict, distances: list) -> str:
+    """Return first server that is online"""
+    http = urllib3.PoolManager()
+    errors = (urllib3.exceptions.MaxRetryError,
+              #urllib3.exceptions.NameResolutionError,
+              urllib3.exceptions.NewConnectionError,
+              urllib3.exceptions.ProtocolError)
+    for each in distances:
+        url = servers[each]
+        print(f"Trying { url }")
+        try:
+            http.request("GET", url + "ISOs")
+        except errors:
+            try:
+                http.request("GET", url + "hash_files")
+            except errors:
+                print(f"WARNING: { url } MAY BE **DOWN**")
+                continue
+        return url
 
 
 def calculate_distance(point_1, point_2):
