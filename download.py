@@ -246,7 +246,7 @@ def calculate_distance(point_1, point_2):
         point_2[each[0]] = float(point_2[each[0]])
 
     # Calculate distance between the points
-    distance = haversine(point_1, point_2, unit='km')
+    distance = haversine(point_1, point_2, units='km')
     return distance
 
 
