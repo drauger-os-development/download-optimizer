@@ -26,11 +26,35 @@ import json
 import multiprocessing
 import os
 import time
-import haversine
+import math
 from flask import Flask, request, redirect, render_template, send_from_directory, url_for
 import urllib3
 import archive
 import common
+
+
+def haversine(point_1, point_2, units="km"):
+    """
+    Calculate the great circle distance in kilometers between two points
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians
+    lat1, lon1 = point_1
+    lat2, lon2 = point_2
+    lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
+    if units.lower() in ("k", "km", "kilo", "kilometers", "kilometer", "metric"):
+        r = 6371
+    elif units.lower() in ("m", "mi", "miles", "mile", "imperial"):
+        r = 3956
+    return c * r
+
 
 IPINFO = ["https://ipinfo.io/", "/json"]
 APP = Flask(__name__)
@@ -222,7 +246,7 @@ def calculate_distance(point_1, point_2):
         point_2[each[0]] = float(point_2[each[0]])
 
     # Calculate distance between the points
-    distance = haversine.haversine(point_1, point_2, unit='km')
+    distance = haversine(point_1, point_2, unit='km')
     return distance
 
 
