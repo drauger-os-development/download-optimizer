@@ -151,7 +151,8 @@ def dedup_entries():
 def get_url(path):
     """get IP address of client and return optimal URL for user"""
     # I know this is really bad to do but it works so meh?
-    global COUNTER, LOCK
+    global COUNTER, DATA_COUNTER, LOCK
+    # todo: set DATA_COUNTER to 0 at some point before using
     # get ip address
     # I know this is non-standard but with the reverse proxy we use it works
     ip_addr = request.host
@@ -177,10 +178,15 @@ def get_url(path):
     # fewer lines of code, and potentially not missing a branch prediction
     data["loc"] = data["loc"].split(",")
     server = get_optimal_server(data["loc"])
+
+    # Get the Content-Length header from the response, which contains the file size in bytes
+    file_size = int(data.headers["Content-Length"])
+
     # Only count ISO downloads, but not DEV ISOs as those are super informal
     if ((path[-4:] == ".iso") and ("DEV" not in path)):
         with LOCK:
             COUNTER.value += 1
+            DATA_COUNTER.value += file_size
     return redirect(server + path)
 
 
