@@ -62,6 +62,7 @@ APP = Flask(__name__)
 # Multithreading stuffs
 LOCK = multiprocessing.Lock()
 COUNTER = multiprocessing.RawValue("i", 0)
+DATA_COUNTER = multiprocessing.RawValue("i", 0)
 
 if not os.path.exists(common.CURRENT_COUNT_FILE):
     with open(common.CURRENT_COUNT_FILE, "w") as file:
