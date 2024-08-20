@@ -74,21 +74,27 @@ if not os.path.exists(common.LONG_TERM_COUNT_FILE):
 
 def update_download_count():
     """periodically update stored download count"""
-    global COUNTER, LOCK
+    global COUNTER, DATA_COUNTER, LOCK
     while True:
         # We dont have to be fast about this since this process is quick as it is
         time.sleep(900)
         with LOCK:
             with open(common.CURRENT_COUNT_FILE, "r") as file:
-                count = file.read()
+                values = file.read().split(',')
+		count = values[0]
+		data_count = values[1]
             try:
                 count = int(count)
+		data_count = int(count)
             except ValueError:
                 count = 0
+		data_count = 0
             count = count + COUNTER.value
+	    data_count = data_count + DATA_COUNTER.value
             COUNTER.value = 0
+	    DATA_COUNTER.value = 0
             with open(common.CURRENT_COUNT_FILE, "w") as file:
-                file.write(str(count))
+                file.write(f"{count},{data_count}")
         # At this point the multitreading-sensitive stuff is done, so release the lock
         hour = time.localtime()[3]
         if hour == 0:
@@ -99,10 +105,10 @@ def update_download_count():
             date = time.time() - 86400
             date = time.localtime(date)
             date = time.strftime("%B %d %Y", date).split(" ")
-            common.write_data_file(common.LONG_TERM_COUNT_FILE, write=[date, count])
+            common.write_data_file(common.LONG_TERM_COUNT_FILE, write=[date, count, data_count])
             with open(common.CURRENT_COUNT_FILE, "w") as file:
                 file.write("0")
-            print(f"Download count for { date }: { count }")
+            print(f"Download count for { date }: { count }, { data_count } bytes")
             dedup_entries()
             archive.create_archive()
 
