@@ -175,7 +175,13 @@ def get_url(path):
     # parsing loc back appart after setting it is a stupid thing to do, but
     # doing it this way saves us having to do an if statement, and therefore
     # fewer lines of code, and potentially not missing a branch prediction
-    data["loc"] = data["loc"].split(",")
+    try:
+        data["loc"] = data["loc"].split(",")
+    except KeyError:
+        print(f"ERROR PARSING LOCATION FOR IP ADDRESS: { ip_addr }")
+        print(f"Returned info from ipinfo.io:\n{ json.dump(data, indent=2) }\n")
+        print("Assuming location of 0,0...")
+        data["loc"] = ["0", "0"]
     server = get_optimal_server(data["loc"])
     # Only count ISO downloads, but not DEV ISOs as those are super informal
     if ((path[-4:] == ".iso") and ("DEV" not in path)):
