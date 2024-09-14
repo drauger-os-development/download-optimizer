@@ -179,7 +179,7 @@ def get_url(path):
         data["loc"] = data["loc"].split(",")
     except KeyError:
         print(f"ERROR PARSING LOCATION FOR IP ADDRESS: { ip_addr }")
-        print(f"Returned info from ipinfo.io:\n{ json.dump(data, indent=2) }\n")
+        print(f"Returned info from ipinfo.io:\n{ json.dumps(data, indent=2) }\n")
         print("Assuming location of 0,0...")
         data["loc"] = ["0", "0"]
     server = get_optimal_server(data["loc"])
