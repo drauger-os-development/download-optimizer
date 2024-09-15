@@ -30,6 +30,7 @@ import math
 from flask import Flask, request, redirect, render_template, send_from_directory, url_for
 import urllib3
 import archive
+import random as rand
 import common
 
 
@@ -207,6 +208,16 @@ def get_optimal_server(loc):
         http = urllib3.PoolManager()
         data = http.request("GET", back_up).data
         data = json.loads(data)
+    if	 loc == ["0", "0"]:
+        # randomly select a server
+        while True:
+            area = rand.sample(data.keys(), 1)[0]
+            if data[area] != []:
+                break
+        data = data[area]
+        # go ahead and return the server. If this server is down, the user is most likely going to try again
+        # if they do, they will likely get a different server
+        return data[0][0]
     servers = {}
     distances = []
     for continents in data:
