@@ -22,7 +22,7 @@
 #
 #
 set -Ee
-set -o pipefail
+#set -o pipefail
 echo "Pulling updates . . ."
 git pull
 # Check to see if there are any updates
