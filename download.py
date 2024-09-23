@@ -30,6 +30,7 @@ import math
 from flask import Flask, request, redirect, render_template, send_from_directory, url_for
 import urllib3
 import archive
+import random as rand
 import common
 
 
@@ -183,7 +184,13 @@ def get_url(path):
     # parsing loc back appart after setting it is a stupid thing to do, but
     # doing it this way saves us having to do an if statement, and therefore
     # fewer lines of code, and potentially not missing a branch prediction
-    data["loc"] = data["loc"].split(",")
+    try:
+        data["loc"] = data["loc"].split(",")
+    except KeyError:
+        print(f"ERROR PARSING LOCATION FOR IP ADDRESS: { ip_addr }")
+        print(f"Returned info from ipinfo.io:\n{ json.dumps(data, indent=2) }\n")
+        print("Assuming location of 0,0...")
+        data["loc"] = ["0", "0"]
     server = get_optimal_server(data["loc"])
 
     # Get the Content-Length header from the response, which contains the file size in bytes
@@ -214,6 +221,16 @@ def get_optimal_server(loc):
         http = urllib3.PoolManager()
         data = http.request("GET", back_up).data
         data = json.loads(data)
+    if	 loc == ["0", "0"]:
+        # randomly select a server
+        while True:
+            area = rand.sample(data.keys(), 1)[0]
+            if data[area] != []:
+                break
+        data = data[area]
+        # go ahead and return the server. If this server is down, the user is most likely going to try again
+        # if they do, they will likely get a different server
+        return data[0][0]
     servers = {}
     distances = []
     for continents in data:
