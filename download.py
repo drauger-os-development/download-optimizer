@@ -233,7 +233,7 @@ def get_optimal_server(loc):
     if	 loc == ["0", "0"]:
         # randomly select a server
         while True:
-            area = rand.sample(sorted(data.keys()), 1)[0]
+            area = rand.sample(list(data.keys()), 1)[0]
             if data[area] != []:
                 break
         data = data[area]
