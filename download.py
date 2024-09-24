@@ -82,18 +82,18 @@ def update_download_count():
         with LOCK:
             with open(common.CURRENT_COUNT_FILE, "r") as file:
                 values = file.read().split(',')
-		count = values[0]
-		data_count = values[1]
+            count = values[0]
+            data_count = values[1]
             try:
                 count = int(count)
-		data_count = int(count)
+                data_count = int(count)
             except ValueError:
                 count = 0
-		data_count = 0
+                data_count = 0
             count = count + COUNTER.value
-	    data_count = data_count + DATA_COUNTER.value
+            data_count = data_count + DATA_COUNTER.value
             COUNTER.value = 0
-	    DATA_COUNTER.value = 0
+            DATA_COUNTER.value = 0
             with open(common.CURRENT_COUNT_FILE, "w") as file:
                 file.write(f"{count},{data_count}")
         # At this point the multitreading-sensitive stuff is done, so release the lock
