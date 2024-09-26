@@ -25,6 +25,7 @@
 import json
 import multiprocessing
 import os
+import sys
 import time
 import math
 from flask import Flask, request, redirect, render_template, send_from_directory, url_for
@@ -214,7 +215,7 @@ def get_optimal_server(loc):
     if	 loc == ["0", "0"]:
         # randomly select a server
         while True:
-            area = rand.sample(data.keys(), 1)[0]
+            area = rand.sample(sorted(data.keys()), 1)[0]
             if data[area] != []:
                 break
         data = data[area]
