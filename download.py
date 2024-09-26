@@ -152,10 +152,13 @@ def dedup_entries():
 def get_url(path):
     """get IP address of client and return optimal URL for user"""
     # I know this is really bad to do but it works so meh?
-    global COUNTER, LOCK
+    global COUNTER, LOCK, MODE
     # get ip address
     # I know this is non-standard but with the reverse proxy we use it works
-    ip_addr = request.host
+    if MODE:
+        ip_addr = request.remote_addr
+    else:
+        ip_addr = request.host
     http = urllib3.PoolManager()
     backup = {"country": "US", "loc": "0,0"}
     try:
@@ -431,4 +434,9 @@ proc = multiprocessing.Process(target=update_download_count)
 proc.start()
 
 if __name__ == "__main__":
-    APP.run(host="0.0.0.0", debug=False)
+    if ("--debug" in sys.argv) or ("-debug" in sys.argv) or ("-d" in sys.argv):
+        MODE = True
+    else:
+        MODE = False
+
+    APP.run(host="0.0.0.0", debug=MODE)
