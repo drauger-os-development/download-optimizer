@@ -435,6 +435,7 @@ proc = multiprocessing.Process(target=update_download_count)
 proc.start()
 
 if __name__ == "__main__":
+    global MODE
     if ("--debug" in sys.argv) or ("-debug" in sys.argv) or ("-d" in sys.argv):
         MODE = True
     else:
