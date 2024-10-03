@@ -154,8 +154,8 @@ def dedup_entries():
         common.write_data_file(common.LONG_TERM_COUNT_FILE, write=each)
 
 
-@APP.route("/<path:path>", mode=MODE)
-def get_url(path):
+@APP.route("/<path:path>")
+def get_url(path, mode=MODE):
     """get IP address of client and return optimal URL for user"""
     # I know this is really bad to do but it works so meh?
     global COUNTER, LOCK
