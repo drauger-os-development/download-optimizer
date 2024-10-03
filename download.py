@@ -35,6 +35,13 @@ import random as rand
 import common
 
 
+if __name__ == "__main__":
+    if ("--debug" in sys.argv) or ("-debug" in sys.argv) or ("-d" in sys.argv):
+        MODE = True
+    else:
+        MODE = False
+
+
 def haversine(point_1, point_2, units="km"):
     """
     Calculate the great circle distance in kilometers between two points
@@ -149,14 +156,14 @@ def dedup_entries():
         common.write_data_file(common.LONG_TERM_COUNT_FILE, write=each)
 
 
-@APP.route("/<path:path>")
+@APP.route("/<path:path>", mode=MODE)
 def get_url(path):
     """get IP address of client and return optimal URL for user"""
     # I know this is really bad to do but it works so meh?
-    global COUNTER, LOCK, MODE
+    global COUNTER, LOCK
     # get ip address
     # I know this is non-standard but with the reverse proxy we use it works
-    if MODE:
+    if mode:
         ip_addr = request.remote_addr
     else:
         ip_addr = request.host
@@ -435,10 +442,4 @@ proc = multiprocessing.Process(target=update_download_count)
 proc.start()
 
 if __name__ == "__main__":
-    global MODE
-    if ("--debug" in sys.argv) or ("-debug" in sys.argv) or ("-d" in sys.argv):
-        MODE = True
-    else:
-        MODE = False
-
     APP.run(host="0.0.0.0", debug=MODE)
