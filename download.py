@@ -34,12 +34,10 @@ import archive
 import random as rand
 import common
 
-
+MODE = False
 if __name__ == "__main__":
     if ("--debug" in sys.argv) or ("-debug" in sys.argv) or ("-d" in sys.argv):
         MODE = True
-    else:
-        MODE = False
 
 
 def haversine(point_1, point_2, units="km"):
