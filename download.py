@@ -25,6 +25,7 @@
 import json
 import multiprocessing
 import os
+import sys
 import time
 import math
 from flask import Flask, request, redirect, render_template, send_from_directory, url_for
@@ -32,6 +33,11 @@ import urllib3
 import archive
 import random as rand
 import common
+
+MODE = False
+if __name__ == "__main__":
+    if ("--debug" in sys.argv) or ("-debug" in sys.argv) or ("-d" in sys.argv):
+        MODE = True
 
 
 def haversine(point_1, point_2, units="km"):
@@ -156,14 +162,17 @@ def dedup_entries():
 
 
 @APP.route("/<path:path>")
-def get_url(path):
+def get_url(path, mode=MODE):
     """get IP address of client and return optimal URL for user"""
     # I know this is really bad to do but it works so meh?
     global COUNTER, DATA_COUNTER, LOCK
     # todo: set DATA_COUNTER to 0 at some point before using
     # get ip address
     # I know this is non-standard but with the reverse proxy we use it works
-    ip_addr = request.host
+    if mode:
+        ip_addr = request.remote_addr
+    else:
+        ip_addr = request.host
     http = urllib3.PoolManager()
     backup = {"country": "US", "loc": "0,0"}
     try:
@@ -224,7 +233,7 @@ def get_optimal_server(loc):
     if	 loc == ["0", "0"]:
         # randomly select a server
         while True:
-            area = rand.sample(data.keys(), 1)[0]
+            area = rand.sample(sorted(data.keys()), 1)[0]
             if data[area] != []:
                 break
         data = data[area]
@@ -444,4 +453,4 @@ proc = multiprocessing.Process(target=update_download_count)
 proc.start()
 
 if __name__ == "__main__":
-    APP.run(host="0.0.0.0", debug=False)
+    APP.run(host="0.0.0.0", debug=MODE)
