@@ -182,6 +182,7 @@ def get_url(path, mode=MODE):
         print("Assuming IP is bogon...")
         data = '{"bogon": true}'
     data = json.loads(data)
+
     # This should only be triggered during local development
     if (("bogon" in data) or ("error" in data)):
         try:
@@ -203,7 +204,10 @@ def get_url(path, mode=MODE):
     server = get_optimal_server(data["loc"])
 
     # Get the Content-Length header from the response, which contains the file size in bytes
-    file_size = int(data.headers["Content-Length"])
+    file_info = http.request("HEAD", server + path)
+    print("Server" + server)
+    print("Path:" + path)
+    print(file_info.headers.get('Content-Length', 0))
 
     # Only count ISO downloads, but not DEV ISOs as those are super informal
     if ((path[-4:] == ".iso") and ("DEV" not in path)):
