@@ -205,15 +205,13 @@ def get_url(path, mode=MODE):
 
     # Get the Content-Length header from the response, which contains the file size in bytes
     file_info = http.request("HEAD", server + path)
-    print("Server" + server)
-    print("Path:" + path)
-    print(file_info.headers.get('Content-Length', 0))
+    file_size = file_info.headers.get('Content-Length', 0)
 
     # Only count ISO downloads, but not DEV ISOs as those are super informal
     if ((path[-4:] == ".iso") and ("DEV" not in path)):
         with LOCK:
             COUNTER.value += 1
-            DATA_COUNTER.value += file_size
+            DATA_COUNTER.value += int(file_size)
     return redirect(server + path)
 
 
