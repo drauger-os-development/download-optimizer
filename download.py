@@ -73,7 +73,7 @@ DATA_COUNTER = multiprocessing.RawValue("i", 0)
 
 if not os.path.exists(common.CURRENT_COUNT_FILE):
     with open(common.CURRENT_COUNT_FILE, "w") as file:
-        file.write("0")
+        file.write("0,0")
 
 if not os.path.exists(common.LONG_TERM_COUNT_FILE):
     common.write_data_file(common.LONG_TERM_COUNT_FILE)
@@ -114,7 +114,7 @@ def update_download_count():
             date = time.strftime("%B %d %Y", date).split(" ")
             common.write_data_file(common.LONG_TERM_COUNT_FILE, write=[date, count, data_count])
             with open(common.CURRENT_COUNT_FILE, "w") as file:
-                file.write("0")
+                file.write("0,0")
             print(f"Download count for { date }: { count }, { data_count } bytes")
             dedup_entries()
             archive.create_archive()
