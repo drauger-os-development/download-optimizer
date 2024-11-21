@@ -69,7 +69,7 @@ APP = Flask(__name__)
 # Multithreading stuffs
 LOCK = multiprocessing.Lock()
 COUNTER = multiprocessing.RawValue("i", 0)
-DATA_COUNTER = multiprocessing.RawValue("i", 0)
+DATA_COUNTER = multiprocessing.RawValue("L", 0)
 
 if not os.path.exists(common.CURRENT_COUNT_FILE):
     with open(common.CURRENT_COUNT_FILE, "w") as file:
@@ -97,7 +97,7 @@ def update_download_count():
                 count = 0
                 data_count = 0
             count = count + COUNTER.value
-            data_count = data_count + DATA_COUNTER.value
+            data_count = data_count + DATA_COUNTER.value / 1024 # converting the data counter MB value into GB rounded to the 3rds place
             COUNTER.value = 0
             DATA_COUNTER.value = 0
             with open(common.CURRENT_COUNT_FILE, "w") as file:
@@ -115,7 +115,7 @@ def update_download_count():
             common.write_data_file(common.LONG_TERM_COUNT_FILE, write=[date, count, data_count])
             with open(common.CURRENT_COUNT_FILE, "w") as file:
                 file.write("0,0")
-            print(f"Download count for { date }: { count }, { data_count } bytes")
+            print(f"Download count for { date }: { count }, { data_count } GB")
             dedup_entries()
             archive.create_archive()
 
@@ -205,7 +205,8 @@ def get_url(path, mode=MODE):
 
     # Get the Content-Length header from the response, which contains the file size in bytes
     file_info = http.request("HEAD", server + path)
-    file_size = file_info.headers.get('Content-Length', 0)
+    file_size_bytes = file_info.headers.get('Content-Length', 0)
+    file_size = str(int(file_size_bytes) // 1048576) #convert from bytes to MB
 
     # Only count ISO downloads, but not DEV ISOs as those are super informal
     if ((path[-4:] == ".iso") and ("DEV" not in path)):
