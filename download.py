@@ -89,13 +89,15 @@ def update_download_count():
             with open(common.CURRENT_COUNT_FILE, "r") as file:
                 values = file.read().split(',')
             count = values[0]
+            print("values: " + str(values))
             data_count = values[1]
             try:
                 count = int(count)
-                data_count = int(count)
+                data_count = float(data_count)
             except ValueError:
                 count = 0
                 data_count = 0
+
             count = count + COUNTER.value
             data_count = data_count + DATA_COUNTER.value / 1024 # converting the data counter MB value into GB rounded to the 3rds place
             COUNTER.value = 0
