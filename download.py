@@ -69,10 +69,11 @@ APP = Flask(__name__)
 # Multithreading stuffs
 LOCK = multiprocessing.Lock()
 COUNTER = multiprocessing.RawValue("i", 0)
+DATA_COUNTER = multiprocessing.RawValue("L", 0)
 
 if not os.path.exists(common.CURRENT_COUNT_FILE):
     with open(common.CURRENT_COUNT_FILE, "w") as file:
-        file.write("0")
+        file.write("0,0")
 
 if not os.path.exists(common.LONG_TERM_COUNT_FILE):
     common.write_data_file(common.LONG_TERM_COUNT_FILE)
@@ -80,21 +81,29 @@ if not os.path.exists(common.LONG_TERM_COUNT_FILE):
 
 def update_download_count():
     """periodically update stored download count"""
-    global COUNTER, LOCK
+    global COUNTER, DATA_COUNTER, LOCK
     while True:
         # We dont have to be fast about this since this process is quick as it is
         time.sleep(900)
         with LOCK:
             with open(common.CURRENT_COUNT_FILE, "r") as file:
-                count = file.read()
+                values = file.read().split(',')
+            count = values[0]
+            print("values: " + str(values))
+            data_count = values[1]
             try:
                 count = int(count)
+                data_count = float(data_count)
             except ValueError:
                 count = 0
+                data_count = 0
+
             count = count + COUNTER.value
+            data_count = data_count + DATA_COUNTER.value / 1024 # converting the data counter MB value into GB rounded to the 3rds place
             COUNTER.value = 0
+            DATA_COUNTER.value = 0
             with open(common.CURRENT_COUNT_FILE, "w") as file:
-                file.write(str(count))
+                file.write(f"{count},{data_count}")
         # At this point the multitreading-sensitive stuff is done, so release the lock
         hour = time.localtime()[3]
         if hour == 0:
@@ -105,10 +114,10 @@ def update_download_count():
             date = time.time() - 86400
             date = time.localtime(date)
             date = time.strftime("%B %d %Y", date).split(" ")
-            common.write_data_file(common.LONG_TERM_COUNT_FILE, write=[date, count])
+            common.write_data_file(common.LONG_TERM_COUNT_FILE, write=[date, count, data_count])
             with open(common.CURRENT_COUNT_FILE, "w") as file:
-                file.write("0")
-            print(f"Download count for { date }: { count }")
+                file.write("0,0")
+            print(f"Download count for { date }: { count }, { data_count } GB")
             dedup_entries()
             archive.create_archive()
 
@@ -158,7 +167,8 @@ def dedup_entries():
 def get_url(path, mode=MODE):
     """get IP address of client and return optimal URL for user"""
     # I know this is really bad to do but it works so meh?
-    global COUNTER, LOCK
+    global COUNTER, DATA_COUNTER, LOCK
+    # todo: set DATA_COUNTER to 0 at some point before using
     # get ip address
     # I know this is non-standard but with the reverse proxy we use it works
     if mode:
@@ -174,6 +184,7 @@ def get_url(path, mode=MODE):
         print("Assuming IP is bogon...")
         data = '{"bogon": true}'
     data = json.loads(data)
+
     # This should only be triggered during local development
     if (("bogon" in data) or ("error" in data)):
         try:
@@ -193,10 +204,17 @@ def get_url(path, mode=MODE):
         print("Assuming location of 0,0...")
         data["loc"] = ["0", "0"]
     server = get_optimal_server(data["loc"])
+
+    # Get the Content-Length header from the response, which contains the file size in bytes
+    file_info = http.request("HEAD", server + path)
+    file_size_bytes = file_info.headers.get('Content-Length', 0)
+    file_size = str(int(file_size_bytes) // 1048576) #convert from bytes to MB
+
     # Only count ISO downloads, but not DEV ISOs as those are super informal
     if ((path[-4:] == ".iso") and ("DEV" not in path)):
         with LOCK:
             COUNTER.value += 1
+            DATA_COUNTER.value += int(file_size)
     return redirect(server + path)
 
 
