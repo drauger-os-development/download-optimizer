@@ -65,6 +65,7 @@ def haversine(point_1, point_2, units="km"):
 
 IPINFO = ["https://ipinfo.io/", "/json"]
 APP = Flask(__name__)
+START_TIME = time.time()
 
 # Multithreading stuffs
 LOCK = multiprocessing.Lock()
@@ -452,6 +453,13 @@ def get_valid_date_ranges():
         valid.append(each)
     print(valid)
     return ""
+
+
+@APP.route("/status")
+def return_status():
+    global START_TIME
+    return {"status": True,
+            "START_TIME": START_TIME}
 
 
 proc = multiprocessing.Process(target=update_download_count)
